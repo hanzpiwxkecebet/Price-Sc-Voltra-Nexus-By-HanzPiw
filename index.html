@@ -1,332 +1,1223 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Voltra Nexus</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Sc Voltra Nexus</title>
+    <meta name="description" content="Voltra Nexus - Premium Bug Script & Multi Device Solution by HanzPiw">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<style>
-body{
-margin:0;
-font-family:'Courier New', monospace;
-background:black;
-color:#0f0;
-overflow-x:hidden;
-opacity:0;
-transition:0.5s;
-}
+    <style>
+        /* --- VARIABLES & RESET --- */
+        :root {
+            --bg-dark: #050505;
+            --bg-panel: #0a0a0f;
+            --primary: #00f3ff; /* Cyan Neon */
+            --secondary: #bc13fe; /* Purple Neon */
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glow-primary: 0 0 10px rgba(0, 243, 255, 0.5), 0 0 20px rgba(0, 243, 255, 0.3);
+            --glow-secondary: 0 0 10px rgba(188, 19, 254, 0.5), 0 0 20px rgba(188, 19, 254, 0.3);
+            --font-head: 'Orbitron', sans-serif;
+            --font-body: 'Rajdhani', sans-serif;
+        }
 
-/* LOADING BAR */
-#loader{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:black;
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-z-index:9999;
-color:#00ff88;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+            cursor: none; /* Custom cursor default */
+        }
 
-#bar{
-width:70%;
-height:10px;
-border:1px solid #00ff88;
-margin-top:20px;
-}
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
 
-#progress{
-height:100%;
-width:0%;
-background:#00ff88;
-box-shadow:0 0 10px #00ff88;
-}
+        /* --- CUSTOM CURSOR --- */
+        .cursor-dot,
+        .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+        }
 
-/* MATRIX */
-canvas{
-position:fixed;
-top:0;
-left:0;
-z-index:0;
-}
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary);
+            box-shadow: var(--glow-primary);
+        }
 
-/* MAIN */
-.container{
-position:relative;
-z-index:2;
-max-width:800px;
-margin:auto;
-padding:20px;
-opacity:0;
-transform:translateY(40px);
-transition:0.6s;
-}
+        .cursor-outline {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--secondary);
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+        }
 
-.container.show{
-opacity:1;
-transform:translateY(0);
-}
+        /* Hide custom cursor on touch devices */
+        @media (hover: none) {
+            .cursor-dot, .cursor-outline { display: none; }
+            * { cursor: auto; }
+        }
 
-/* HEADER */
-.header{text-align:center;}
-.header img{width:100%; border-radius:10px;}
+        /* --- SCROLL PROGRESS BAR --- */
+        #progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            z-index: 10000;
+            box-shadow: var(--glow-primary);
+        }
 
-/* RGB */
-.rgb{
-animation:rgb 5s infinite linear;
-}
-@keyframes rgb{
-0%{color:red;}
-25%{color:cyan;}
-50%{color:#00ff88;}
-75%{color:yellow;}
-100%{color:red;}
-}
+        /* --- LOADING SCREEN --- */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 99999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            transition: opacity 0.5s ease-out, visibility 0.5s;
+        }
 
-/* BOX */
-.box{
-background:rgba(0,0,0,0.6);
-border:1px solid #00ff88;
-margin-top:20px;
-padding:20px;
-box-shadow:0 0 20px #00ff88;
-opacity:0;
-transform:translateY(30px);
-transition:0.5s;
-}
-.box.show{
-opacity:1;
-transform:translateY(0);
-}
+        .loader-content {
+            text-align: center;
+        }
 
-.line{margin:6px 0;}
+        .loader-logo {
+            font-family: var(--font-head);
+            font-size: 2rem;
+            font-weight: 900;
+            color: transparent;
+            -webkit-text-stroke: 2px var(--primary);
+            animation: pulse-glow 1.5s infinite alternate;
+            letter-spacing: 2px;
+        }
 
-/* BUTTON */
-.btn{
-display:block;
-text-align:center;
-border:2px solid #00ff88;
-color:#00ff88;
-padding:12px;
-margin-top:10px;
-cursor:pointer;
-transition:0.3s;
-opacity:0;
-transform:translateY(30px);
-}
-.btn.show{
-opacity:1;
-transform:translateY(0);
-}
-.btn:hover{
-background:#00ff88;
-color:black;
-box-shadow:0 0 20px #00ff88;
-}
+        .loader-bar {
+            width: 200px;
+            height: 4px;
+            background: #222;
+            margin-top: 20px;
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
 
-/* MUSIC */
-.music{
-position:fixed;
-bottom:20px;
-right:20px;
-border:2px solid #00ff88;
-padding:10px;
-cursor:pointer;
-z-index:999;
-background:black;
-}
+        .loader-progress {
+            width: 0%;
+            height: 100%;
+            background: var(--secondary);
+            box-shadow: var(--glow-secondary);
+            animation: load-progress 2s ease-in-out forwards;
+        }
 
-#volume{
-position:fixed;
-bottom:70px;
-right:20px;
-width:120px;
-}
+        @keyframes load-progress {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
 
-/* FOOTER */
-.footer{
-text-align:center;
-margin-top:40px;
-color:#00ff88;
-opacity:0.7;
-}
-</style>
+        @keyframes pulse-glow {
+            from { text-shadow: 0 0 5px var(--primary); }
+            to { text-shadow: 0 0 20px var(--primary), 0 0 30px var(--secondary); }
+        }
+
+        /* --- BACKGROUND PARTICLES --- */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            background: radial-gradient(circle at center, #1a1a2e 0%, #000000 100%);
+        }
+
+        /* --- TYPOGRAPHY & UTILS --- */
+        h1, h2, h3, h4 {
+            font-family: var(--font-head);
+            text-transform: uppercase;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+        }
+        
+        .sub-section-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            border-left: 4px solid var(--secondary);
+            padding-left: 15px;
+            margin-top: 40px;
+            background: linear-gradient(90deg, rgba(0, 243, 255, 0.1), transparent);
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        section {
+            padding: 80px 0;
+            position: relative;
+        }
+
+        /* --- BUTTONS --- */
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            font-family: var(--font-head);
+            font-weight: 700;
+            text-decoration: none;
+            text-transform: uppercase;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            background: rgba(0, 243, 255, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            background: var(--primary);
+            color: #000;
+            box-shadow: var(--glow-primary);
+            transform: translateY(-3px);
+        }
+
+        .btn-secondary {
+            border-color: var(--secondary);
+            color: var(--secondary);
+            background: rgba(188, 19, 254, 0.05);
+        }
+
+        .btn-secondary:hover {
+            background: var(--secondary);
+            color: #fff;
+            box-shadow: var(--glow-secondary);
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            background: rgba(5, 5, 5, 0.7);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: var(--font-head);
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--text-main);
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            color: var(--text-main);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            padding-top: 80px;
+        }
+
+        .hero-content {
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+        }
+
+        .hero h1 span {
+            color: var(--primary);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            letter-spacing: 1px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* --- TABLE STYLES --- */
+        .table-container {
+            overflow-x: auto;
+            background: var(--bg-panel);
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 30px; /* Space between tables */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 500px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        th {
+            background: rgba(0, 243, 255, 0.1);
+            color: var(--primary);
+            font-family: var(--font-head);
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .price-col {
+            font-weight: bold;
+            color: var(--secondary);
+            text-align: right;
+            font-family: var(--font-head);
+        }
+        
+        .role-col {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        /* --- ABOUT SECTION --- */
+        .about-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .about-card p {
+            font-size: 1.1rem;
+            color: #ccc;
+        }
+
+        /* --- FEATURES --- */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: var(--bg-panel);
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--glow-primary);
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* --- NOTE SECTION --- */
+        .note-card {
+            background: rgba(255, 0, 0, 0.05);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .note-card h3 {
+            color: #ff4d4d;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .note-list li {
+            list-style: none;
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .note-list li::before {
+            content: '!';
+            position: absolute;
+            left: 0;
+            color: #ff4d4d;
+            font-weight: bold;
+        }
+
+        /* --- TESTIMONIALS (Link Style) --- */
+        .testi-link-container {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .testi-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            background: linear-gradient(45deg, #25D366, #128C7E);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-family: var(--font-head);
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(37, 211, 102, 0.4);
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .testi-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(37, 211, 102, 0.6);
+        }
+
+        /* --- FAQ --- */
+        .faq-item {
+            background: var(--bg-panel);
+            border: 1px solid var(--glass-border);
+            margin-bottom: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .faq-question:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            padding: 0 20px;
+            color: var(--text-muted);
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 200px;
+            padding-bottom: 20px;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+            color: var(--primary);
+        }
+
+        /* --- CONTACT --- */
+        .contact-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .contact-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            color: #fff;
+        }
+
+        .wa-btn { background: #25D366; box-shadow: 0 0 15px rgba(37, 211, 102, 0.4); }
+        .tg-btn { background: #0088cc; box-shadow: 0 0 15px rgba(0, 136, 204, 0.4); }
+        .channel-btn { background: linear-gradient(45deg, var(--primary), var(--secondary)); }
+
+        .contact-btn:hover {
+            transform: scale(1.05);
+            filter: brightness(1.2);
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background: #000;
+            padding: 40px 0;
+            text-align: center;
+            border-top: 1px solid var(--glass-border);
+            margin-top: 50px;
+        }
+
+        .footer-logo {
+            font-family: var(--font-head);
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        .copyright {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                right: -100%;
+                width: 100%;
+                height: calc(100vh - 70px);
+                background: rgba(5, 5, 5, 0.95);
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                transition: 0.4s;
+            }
+            .nav-links.active { right: 0; }
+            .mobile-menu-btn { display: block; }
+        }
+
+        /* --- ANIMATION CLASSES --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
 </head>
-
 <body>
 
-<!-- LOADING -->
-<div id="loader">
-<div>LOADING SYSTEM...</div>
-<div id="bar"><div id="progress"></div></div>
-<div id="percent">0%</div>
-</div>
+    <!-- Loading Screen -->
+    <div id="loader">
+        <div class="loader-content">
+            <div class="loader-logo">VOLTRA NEXUS</div>
+            <div class="loader-bar">
+                <div class="loader-progress"></div>
+            </div>
+        </div>
+    </div>
 
-<canvas id="matrix"></canvas>
+    <!-- Custom Cursor -->
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
 
-<audio id="bgm" loop autoplay>
-<source src="https://i.top4top.io/m_37704qwu40.mp3">
-</audio>
+    <!-- Scroll Progress -->
+    <div id="progress-bar"></div>
 
-<audio id="click">
-<source src="https://www.soundjay.com/buttons/sounds/button-16.mp3">
-</audio>
+    <!-- Background Particles -->
+    <canvas id="particles-js"></canvas>
 
-<div class="container" id="main">
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="#" class="logo">VOLTRA <span>NEXUS</span></a>
+            <div class="mobile-menu-btn"><i class="fas fa-bars"></i></div>
+            <div class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#about">About</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#upgrade">Upgrade</a>
+                <a href="#contact">Contact</a>
+            </div>
+        </div>
+    </nav>
 
-<div class="header">
-<img src="https://gangalink.vercel.app/i/ct5ba5u2">
-<h1 class="rgb">VOLTRA NEXUS</h1>
-</div>
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="container hero-content reveal">
+            <h1>VOLTRA <span>NEXUS</span></h1>
+            <p>Premium Bug Script & Multi Device Solution</p>
+            <div class="hero-buttons">
+                <a href="#pricing" class="btn">Buy Now</a>
+                <a href="#contact" class="btn btn-secondary">Contact Admin</a>
+            </div>
+        </div>
+    </section>
 
-<!-- HARGA -->
-<div class="box">
-<h2>Harga Title</h2>
-<div class="line">Full Up = 15k</div>
-<div class="line">Reseller = 25k</div>
-<div class="line">Partner = 35k</div>
-<div class="line">Moderator = 45k</div>
-<div class="line">CEO = 55k</div>
-<div class="line">Owner = 65k</div>
-<div class="line">Tangan Kanan = 75k</div>
-</div>
+    <!-- About Section -->
+    <section id="about">
+        <div class="container reveal">
+            <h2 class="section-title">ABOUT US</h2>
+            <div class="about-card">
+                <p>Voltra Nexus adalah script premium dengan fitur Bug dan Multi Device, performa stabil, update berkala, serta sistem role dan akses eksklusif untuk reseller hingga creator.</p>
+            </div>
+        </div>
+    </section>
 
-<!-- UPGRADE -->
-<div class="box"><h2>Dari Full Up</h2>
-<div class="line">→ Reseller = 10k</div>
-<div class="line">→ Partner = 20k</div>
-<div class="line">→ Moderator = 30k</div>
-<div class="line">→ CEO = 40k</div>
-<div class="line">→ Owner = 50k</div>
-<div class="line">→ Tangan Kanan = 60k</div>
-</div>
+    <!-- Features Section -->
+    <section id="features">
+        <div class="container">
+            <h2 class="section-title">FEATURES</h2>
+            <div class="features-grid">
+                <div class="feature-card reveal">
+                    <i class="fas fa-code feature-icon"></i>
+                    <h3>Premium Script</h3>
+                    <p>Kode bersih dan teroptimasi.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <i class="fas fa-bolt feature-icon"></i>
+                    <h3>Fast Response</h3>
+                    <p>Layanan cepat dan tanggap.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <i class="fas fa-sync-alt feature-icon"></i>
+                    <h3>Update Berkala</h3>
+                    <p>Fitur terbaru setiap bulan.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <i class="fas fa-mobile-alt feature-icon"></i>
+                    <h3>Multi Device</h3>
+                    <p>Banyak fitur MD yang mungkin bisa membantu anda.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <i class="fas fa-headset feature-icon"></i>
+                    <h3>Support 24/7</h3>
+                    <p>Bantuan kapanpun dibutuhkan.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <i class="fas fa-shield-alt feature-icon"></i>
+                    <h3>Secure System</h3>
+                    <p>Keamanan data terjamin.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<div class="box"><h2>Dari Reseller</h2>
-<div class="line">→ Partner = 10k</div>
-<div class="line">→ Moderator = 20k</div>
-<div class="line">→ CEO = 30k</div>
-<div class="line">→ Owner = 40k</div>
-<div class="line">→ Tangan Kanan = 50k</div>
-</div>
+    <!-- Pricing Section (TABLE FORMAT) -->
+    <section id="pricing">
+        <div class="container">
+            <h2 class="section-title">HARGA TITLE VOLTRA NEXUS</h2>
+            <div class="table-container reveal">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title Role</th>
+                            <th style="text-align: right;">Harga</th>
+                            <th style="text-align: center;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="role-col">Full Up</td>
+                            <td class="price-col">Rp15.000</td>
+                            <td style="text-align: center;"><a href="#contact" class="btn" style="padding: 5px 15px; font-size: 0.8rem;">Buy</a></td>
+                        </tr>
+                        <tr>
+                            <td class="role-col">Reseller</td>
+                            <td class="price-col">Rp25.000</td>
+                            <td style="text-align: center;"><a href="#contact" class="btn" style="padding: 5px 15px; font-size: 0.8rem;">Buy</a></td>
+                        </tr>
+                        <tr>
+                            <td class="role-col">Partner</td>
+                            <td class="price-col">Rp35.000</td>
+                            <td style="text-align: center;"><a href="#contact" class="btn" style="padding: 5px 15px; font-size: 0.8rem;">Buy</a></td>
+                        </tr>
+                        <tr>
+                            <td class="role-col">Moderator</td>
+                            <td class="price-col">Rp45.000</td>
+                            <td style="text-align: center;"><a href="#contact" class="btn" style="padding: 5px 15px; font-size: 0.8rem;">Buy</a></td>
+                        </tr>
+                        <tr>
+                            <td class="role-col">CEO</td>
+                            <td class="price-col">Rp55.000</td>
+                            <td style="text-align: center;"><a href="#contact" class="btn" style="padding: 5px 15px; font-size: 0.8rem;">Buy</a></td>
+                        </tr>
+                        <tr>
+                            <td class="role-col">Owner</td>
+                            <td class="price-col">Rp65.000</td>
+                            <td style="text-align: center;"><a href="#contact" class="btn" style="padding: 5px 15px; font-size: 0.8rem;">Buy</a></td>
+                        </tr>
+                        <tr>
+                            <td class="role-col">Tangan Kanan</td>
+                            <td class="price-col">Rp75.000</td>
+                            <td style="text-align: center;"><a href="#contact" class="btn" style="padding: 5px 15px; font-size: 0.8rem;">Buy</a></td>
+                        </tr>
+                        <tr>
+                            <td class="role-col">Supreme</td>
+                            <td class="price-col">Rp90.000</td>
+                            <td style="text-align: center;"><a href="#contact" class="btn" style="padding: 5px 15px; font-size: 0.8rem;">Buy</a></td>
+                        </tr>
+                        <tr>
+                            <td class="role-col" style="color: var(--secondary);">Creator</td>
+                            <td class="price-col">Rp110.000</td>
+                            <td style="text-align: center;"><a href="#contact" class="btn btn-secondary" style="padding: 5px 15px; font-size: 0.8rem;">Buy</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
 
-<div class="box"><h2>Dari Partner</h2>
-<div class="line">→ Moderator = 10k</div>
-<div class="line">→ CEO = 20k</div>
-<div class="line">→ Owner = 30k</div>
-<div class="line">→ Tangan Kanan = 40k</div>
-</div>
+    <!-- Upgrade Section (SEPARATED TABLES) -->
+    <section id="upgrade">
+        <div class="container">
+            <h2 class="section-title">HARGA UPGRADE TITLE</h2>
+            
+            <!-- Full Up Upgrades -->
+            <div class="reveal">
+                <h3 class="sub-section-title">Upgrade Dari Full Up</h3>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Ke Role</th><th>Harga</th></tr></thead>
+                        <tbody id="upgrade-fullup"></tbody>
+                    </table>
+                </div>
+            </div>
 
-<div class="box"><h2>Dari Moderator</h2>
-<div class="line">→ CEO = 10k</div>
-<div class="line">→ Owner = 20k</div>
-<div class="line">→ Tangan Kanan = 30k</div>
-</div>
+            <!-- Reseller Upgrades -->
+            <div class="reveal">
+                <h3 class="sub-section-title">Upgrade Dari Reseller</h3>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Ke Role</th><th>Harga</th></tr></thead>
+                        <tbody id="upgrade-reseller"></tbody>
+                    </table>
+                </div>
+            </div>
 
-<div class="box"><h2>Dari CEO</h2>
-<div class="line">→ Owner = 10k</div>
-<div class="line">→ Tangan Kanan = 20k</div>
-</div>
+            <!-- Partner Upgrades -->
+            <div class="reveal">
+                <h3 class="sub-section-title">Upgrade Dari Partner</h3>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Ke Role</th><th>Harga</th></tr></thead>
+                        <tbody id="upgrade-partner"></tbody>
+                    </table>
+                </div>
+            </div>
 
-<div class="box"><h2>Dari Owner</h2>
-<div class="line">→ Tangan Kanan = 10k</div>
-</div>
+            <!-- Moderator Upgrades -->
+            <div class="reveal">
+                <h3 class="sub-section-title">Upgrade Dari Moderator</h3>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Ke Role</th><th>Harga</th></tr></thead>
+                        <tbody id="upgrade-moderator"></tbody>
+                    </table>
+                </div>
+            </div>
 
-<!-- NOTE -->
-<div class="box">
-<h2>Note</h2>
-<div class="line">No nego</div>
-<div class="line">DP minimal 50%</div>
-<div class="line">Max 3 hari</div>
-</div>
+            <!-- CEO Upgrades -->
+            <div class="reveal">
+                <h3 class="sub-section-title">Upgrade Dari CEO</h3>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Ke Role</th><th>Harga</th></tr></thead>
+                        <tbody id="upgrade-ceo"></tbody>
+                    </table>
+                </div>
+            </div>
 
-<div class="btn" onclick="go('https://t.me/hanzpiwofc')">CONTACT OWNER</div>
-<div class="btn" onclick="go('https://t.me/BotLimit_HanzPiwbot')">BOT LIMIT</div>
+            <!-- Owner Upgrades -->
+            <div class="reveal">
+                <h3 class="sub-section-title">Upgrade Dari Owner</h3>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Ke Role</th><th>Harga</th></tr></thead>
+                        <tbody id="upgrade-owner"></tbody>
+                    </table>
+                </div>
+            </div>
 
-<div class="box">
-<h2>Creator SC</h2>
-<div class="line">Jayss [ Developer ]</div>
-<div class="line">Wanz [ Best Friend ]</div>
-<div class="line">HanzPiw [ Best Friend ]</div>
-<div class="line">Xwar [ Support ]</div>
-<div class="line">Xatanical [ Support ]</div>
-<div class="line">Nexi [ Support ]</div>
-</div>
+            <!-- Tangan Kanan Upgrades -->
+            <div class="reveal">
+                <h3 class="sub-section-title">Upgrade Dari Tangan Kanan</h3>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Ke Role</th><th>Harga</th></tr></thead>
+                        <tbody id="upgrade-tk"></tbody>
+                    </table>
+                </div>
+            </div>
 
-<div class="btn" onclick="go('https://t.me/ImJoyys')">Chat Jayss</div>
-<div class="btn" onclick="go('https://t.me/WanzEverly')">Chat Wanz</div>
-<div class="btn" onclick="go('https://t.me/hanzpiwofc')">Chat HanzPiw</div>
-<div class="btn" onclick="go('https://t.me/xwarrxxx')">Chat Xwar</div>
-<div class="btn" onclick="go('https://t.me/Xatanicvxii')">Chat Xatanical</div>
-<div class="btn" onclick="go('https://t.me/NexiRajaIblis')">Chat Nexi</div>
+            <!-- Supreme Upgrades -->
+            <div class="reveal">
+                <h3 class="sub-section-title">Upgrade Dari Supreme</h3>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Ke Role</th><th>Harga</th></tr></thead>
+                        <tbody id="upgrade-supreme"></tbody>
+                    </table>
+                </div>
+            </div>
 
-<div class="box">
-<h2>Creator Website</h2>
-<div class="line">HanzPiw [ Owner Website ]</div>
-</div>
+        </div>
+    </section>
 
-<div class="footer">© HanzPiw 2026</div>
+    <!-- Note Section -->
+    <section id="note">
+        <div class="container reveal">
+            <h2 class="section-title">NOTE ❗</h2>
+            <div class="note-card">
+                <h3><i class="fas fa-exclamation-triangle"></i> Penting</h3>
+                <ul class="note-list">
+                    <li>No Nego</li>
+                    <li>Boleh DP</li>
+                    <li>Minimal DP 50% Dari Harga Yang Ditentukan</li>
+                    <li>DP Max 3 Hari</li>
+                    <li>No Benefit PT</li>
+                </ul>
+            </div>
+        </div>
+    </section>
 
-</div>
+    <!-- Testimonials Section (Link to WA Channel) -->
+    <section id="testimonials">
+        <div class="container reveal">
+            <h2 class="section-title">TESTIMONIALS</h2>
+            <div class="testi-link-container">
+                <p style="margin-bottom: 20px; color: var(--text-muted);">Lihat bukti transaksi dan review asli dari member kami di channel WhatsApp:</p>
+                <a href="https://whatsapp.com/channel/0029VbCv5vq6WaKeBDGgOM3N" target="_blank" class="testi-btn">
+                    <i class="fab fa-whatsapp" style="font-size: 1.5rem;"></i>
+                    CEK TESTIMONI DI SINI
+                </a>
+            </div>
+        </div>
+    </section>
 
+    <!-- FAQ Section -->
+    <section id="faq">
+        <div class="container">
+            <h2 class="section-title">FAQ</h2>
+            <div class="faq-container" style="max-width: 800px; margin: 0 auto;">
+                <div class="faq-item reveal">
+                    <div class="faq-question">
+                        Apakah bisa DP?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Bisa, minimal 50%.
+                    </div>
+                </div>
+                <div class="faq-item reveal">
+                    <div class="faq-question">
+                        Apakah harga bisa nego?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Tidak.
+                    </div>
+                </div>
+                <div class="faq-item reveal">
+                    <div class="faq-question">
+                        Apakah mendapat update?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Ya, sesuai title yang dimiliki.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<script>
-document.body.style.opacity="1";
+    <!-- Contact Section -->
+    <section id="contact">
+        <div class="container reveal">
+            <h2 class="section-title">CONTACT ADMIN</h2>
+            <div class="contact-buttons">
+                <a href="https;//wa.me/6285191782145" class="contact-btn wa-btn"><i class="fab fa-whatsapp"></i> WhatsApp Admin</a>
+                <a href="https://t.me/hanzpiwofc" class="contact-btn tg-btn"><i class="fab fa-telegram-plane"></i> Telegram Admin</a>
+                <a href="https://t.me/abuthanzpiw1" class="contact-btn channel-btn"><i class="fab fa-telegram"></i> Channel Telegram</a>
+            </div>
+        </div>
+    </section>
 
-/* LOADING BAR */
-let p=0;
-let interval=setInterval(()=>{
-p++;
-progress.style.width=p+"%";
-percent.innerText=p+"%";
-if(p>=100){
-clearInterval(interval);
-loader.style.display="none";
-main.classList.add("show");
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-logo">VOLTRA NEXUS</div>
+            <p class="copyright">&copy; 2026 Voltra Nexus - Powered By HanzPiw</p>
+        </div>
+    </footer>
 
-let items=document.querySelectorAll(".box, .btn");
-items.forEach((el,i)=>{
-setTimeout(()=>{el.classList.add("show");}, i*80);
-});
-}
-},15);
+    <!-- JavaScript Internal -->
+    <script>
+        // --- LOADER ---
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            setTimeout(() => {
+                loader.style.opacity = '0';
+                loader.style.visibility = 'hidden';
+            }, 2000); // 2 seconds loading simulation
+        });
 
-/* MATRIX */
-const c=document.getElementById("matrix");
-const x=c.getContext("2d");
-c.height=window.innerHeight;
-c.width=window.innerWidth;
+        // --- CUSTOM CURSOR ---
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorOutline = document.querySelector('.cursor-outline');
 
-let arr="01".split("");
-let size=14;
-let col=c.width/size;
-let drop=[];
-for(let i=0;i<col;i++) drop[i]=1;
+        window.addEventListener('mousemove', (e) => {
+            const posX = e.clientX;
+            const posY = e.clientY;
 
-function draw(){
-x.fillStyle="rgba(0,0,0,0.05)";
-x.fillRect(0,0,c.width,c.height);
-x.fillStyle="#0f0";
-x.font=size+"px monospace";
-for(let i=0;i<drop.length;i++){
-let t=arr[Math.floor(Math.random()*arr.length)];
-x.fillText(t,i*size,drop[i]*size);
-if(drop[i]*size>c.height && Math.random()>0.975) drop[i]=0;
-drop[i]++;
-}
-}
-setInterval(draw,33);
+            cursorDot.style.left = `${posX}px`;
+            cursorDot.style.top = `${posY}px`;
 
-/* NAV */
-function go(url){
-click.play();
-setTimeout(()=>{window.location.href=url;},150);
-}
+            cursorOutline.animate({
+                left: `${posX}px`,
+                top: `${posY}px`
+            }, { duration: 500, fill: "forwards" });
+        });
 
-</script>
+        // --- SCROLL PROGRESS BAR ---
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById("progress-bar").style.width = scrolled + "%";
+        });
 
+        // --- MOBILE MENU ---
+        const menuBtn = document.querySelector('.mobile-menu-btn');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+            });
+        });
+
+        // --- SCROLL REVEAL ANIMATION ---
+        const revealElements = document.querySelectorAll('.reveal');
+
+        const revealOnScroll = () => {
+            const windowHeight = window.innerHeight;
+            const elementVisible = 150;
+
+            revealElements.forEach((reveal) => {
+                const elementTop = reveal.getBoundingClientRect().top;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveal.classList.add('active');
+                }
+            });
+        };
+
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+
+        // --- FAQ ACCORDION ---
+        const faqItems = document.querySelectorAll('.faq-item');
+
+        faqItems.forEach(item => {
+            item.querySelector('.faq-question').addEventListener('click', () => {
+                faqItems.forEach(otherItem => {
+                    if (otherItem !== item) otherItem.classList.remove('active');
+                });
+                item.classList.toggle('active');
+            });
+        });
+
+        // --- POPULATE SEPARATED UPGRADE TABLES ---
+        const upgradeData = {
+            fullup: [
+                { to: "Reseller", price: "10K" },
+                { to: "Partner", price: "20K" },
+                { to: "Moderator", price: "30K" },
+                { to: "CEO", price: "40K" },
+                { to: "Owner", price: "50K" },
+                { to: "Tangan Kanan", price: "60K" },
+                { to: "Supreme", price: "75K" },
+                { to: "Creator", price: "95K" }
+            ],
+            reseller: [
+                { to: "Partner", price: "10K" },
+                { to: "Moderator", price: "20K" },
+                { to: "CEO", price: "30K" },
+                { to: "Owner", price: "40K" },
+                { to: "Tangan Kanan", price: "50K" },
+                { to: "Supreme", price: "65K" },
+                { to: "Creator", price: "85K" }
+            ],
+            partner: [
+                { to: "Moderator", price: "10K" },
+                { to: "CEO", price: "20K" },
+                { to: "Owner", price: "30K" },
+                { to: "Tangan Kanan", price: "40K" },
+                { to: "Supreme", price: "55K" },
+                { to: "Creator", price: "75K" }
+            ],
+            moderator: [
+                { to: "CEO", price: "10K" },
+                { to: "Owner", price: "20K" },
+                { to: "Tangan Kanan", price: "30K" },
+                { to: "Supreme", price: "45K" },
+                { to: "Creator", price: "65K" }
+            ],
+            ceo: [
+                { to: "Owner", price: "10K" },
+                { to: "Tangan Kanan", price: "20K" },
+                { to: "Supreme", price: "35K" },
+                { to: "Creator", price: "55K" }
+            ],
+            owner: [
+                { to: "Tangan Kanan", price: "10K" },
+                { to: "Supreme", price: "25K" },
+                { to: "Creator", price: "45K" }
+            ],
+            tk: [
+                { to: "Supreme", price: "15K" },
+                { to: "Creator", price: "35K" }
+            ],
+            supreme: [
+                { to: "Creator", price: "20K" }
+            ]
+        };
+
+        function populateTable(tableId, data) {
+            const tbody = document.getElementById(tableId);
+            let html = '';
+            data.forEach(item => {
+                html += `
+                    <tr>
+                        <td>${item.to}</td>
+                        <td class="price-col">Rp${item.price}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        populateTable('upgrade-fullup', upgradeData.fullup);
+        populateTable('upgrade-reseller', upgradeData.reseller);
+        populateTable('upgrade-partner', upgradeData.partner);
+        populateTable('upgrade-moderator', upgradeData.moderator);
+        populateTable('upgrade-ceo', upgradeData.ceo);
+        populateTable('upgrade-owner', upgradeData.owner);
+        populateTable('upgrade-tk', upgradeData.tk);
+        populateTable('upgrade-supreme', upgradeData.supreme);
+
+        // --- PARTICLE BACKGROUND SYSTEM ---
+        const canvas = document.getElementById('particles-js');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particlesArray;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2;
+                this.speedX = (Math.random() * 1) - 0.5;
+                this.speedY = (Math.random() * 1) - 0.5;
+                this.color = Math.random() > 0.5 ? '#00f3ff' : '#bc13fe';
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width || this.x < 0) this.speedX = -this.speedX;
+                if (this.y > canvas.height || this.y < 0) this.speedY = -this.speedY;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particlesArray = [];
+            let numberOfParticles = (canvas.height * canvas.width) / 9000;
+            for (let i = 0; i < numberOfParticles; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            requestAnimationFrame(animateParticles);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+                
+                for (let j = i; j < particlesArray.length; j++) {
+                    const dx = particlesArray[i].x - particlesArray[j].x;
+                    const dy = particlesArray[i].y - particlesArray[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(100, 100, 255, ${1 - distance/100})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particlesArray[i].x, particlesArray[i].y);
+                        ctx.lineTo(particlesArray[j].x, particlesArray[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        initParticles();
+        animateParticles();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initParticles();
+        });
+
+    </script>
 </body>
 </html>
